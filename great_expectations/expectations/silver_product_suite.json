@@ -1,0 +1,206 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "silver_product_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_columns_to_match_ordered_list",
+      "kwargs": {
+        "column_list": [
+          "url",
+          "scrape_date",
+          "product_id",
+          "name",
+          "price",
+          "description",
+          "rating",
+          "num_reviews",
+          "in_stock",
+          "brand",
+          "category",
+          "image_urls",
+          "processed_at",
+          "data_source",
+          "scrape_timestamp"
+        ]
+      }
+    },
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 1,
+        "max_value": 100000
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "url"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "product_id"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "name"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "price"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "brand"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "category"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "processed_at"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "name",
+        "type_": "str"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "price",
+        "type_": "float"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "rating",
+        "type_": "float"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "in_stock",
+        "type_": "bool"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "brand",
+        "type_": "str"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "category",
+        "type_": "str"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "price",
+        "min_value": 0,
+        "max_value": 10000
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "rating",
+        "min_value": 0,
+        "max_value": 5,
+        "mostly": 0.99
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "url",
+        "regex": "^https?://",
+        "mostly": 0.99
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {
+        "column": ["product_id", "category"]
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_match_regex",
+      "kwargs": {
+        "column": "name",
+        "regex": "\\s{2,}",
+        "mostly": 0.99
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Ensures names don't have multiple consecutive spaces"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "data_source",
+        "value_set": ["web_scraper"]
+      }
+    },
+    {
+      "expectation_type": "expect_column_distinct_values_to_be_in_set",
+      "kwargs": {
+        "column": "brand",
+        "value_set": null,
+        "parse_strings_as_datetimes": false
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "This expectation is initially created without a value set and should be updated after analyzing the actual data."
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_distinct_values_to_be_in_set",
+      "kwargs": {
+        "column": "category",
+        "value_set": null,
+        "parse_strings_as_datetimes": false
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "This expectation is initially created without a value set and should be updated after analyzing the actual data."
+        }
+      }
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "0.16.13",
+    "notes": {
+      "format": "markdown",
+      "content": "# Silver Product Data Validation\n\nThis suite validates transformed product data in the silver layer. It ensures that:\n\n1. Required fields are present and non-null\n2. Data types are correct\n3. Values are within expected ranges\n4. There are no duplicate combinations of product_id and category\n5. Strings are properly formatted (no extra spaces)\n6. Data source identifiers are correct\n7. Added metadata fields are present and correct"
+    }
+  }
+}

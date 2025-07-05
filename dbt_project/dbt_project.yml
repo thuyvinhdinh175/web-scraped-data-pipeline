@@ -1,0 +1,51 @@
+name: 'product_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'product_analytics'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  product_analytics:
+    # Apply these configs to all models in this project
+    +materialized: view
+    gold:
+      +materialized: table
+      schema: gold
+
+sources:
+  - name: silver
+    schema: silver
+    tables:
+      - name: products
+        description: "Cleaned and transformed product data from web scraping"
+        columns:
+          - name: product_id
+            description: "Unique identifier for the product"
+          - name: name
+            description: "Product name"
+          - name: price
+            description: "Current price of the product"
+          - name: brand
+            description: "Product brand"
+          - name: category
+            description: "Product category"
+          - name: rating
+            description: "Customer rating (0-5 stars)"
+          - name: num_reviews
+            description: "Number of customer reviews"
+          - name: in_stock
+            description: "Whether the product is currently in stock"
+          - name: scrape_timestamp
+            description: "When the product was scraped"

@@ -1,0 +1,31 @@
+product_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: spark
+      method: thrift
+      host: spark-master
+      port: 10000
+      user: spark
+      schema: default
+      connect_timeout: 60
+      connect_retries: 5
+      threads: 4
+    
+    # For local development without Spark Thrift Server
+    local:
+      type: parquet
+      location: ../data
+      threads: 1
+
+    # For production with AWS
+    prod:
+      type: spark
+      method: thrift
+      host: "{{ env_var('SPARK_HOST', 'localhost') }}"
+      port: "{{ env_var('SPARK_PORT', '10000') }}"
+      user: "{{ env_var('SPARK_USER', 'spark') }}"
+      schema: production
+      connect_timeout: 60
+      connect_retries: 5
+      threads: 8

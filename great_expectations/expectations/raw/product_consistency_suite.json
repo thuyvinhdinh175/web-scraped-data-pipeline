@@ -1,0 +1,107 @@
+{
+  "data_asset_type": "Dataset",
+  "expectation_suite_name": "raw_product_consistency_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "price",
+        "min_value": 0,
+        "max_value": 10000
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Price should be a positive number within a reasonable range"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "rating",
+        "min_value": 0,
+        "max_value": 5,
+        "mostly": 0.99
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Rating should be between 0 and 5 stars"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "product_id",
+        "type_": "str"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Product ID should be a string"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "price",
+        "type_": "float"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Price should be a float"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "in_stock",
+        "type_": "bool"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "In-stock status should be a boolean"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "url",
+        "regex": "^https?://.*$"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "URL should start with http:// or https://"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "scrape_date",
+        "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*$"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Scrape date should be in ISO 8601 format"
+        }
+      }
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "0.15.50",
+    "notes": {
+      "format": "markdown",
+      "content": "This expectation suite checks for data consistency and type correctness"
+    }
+  }
+}

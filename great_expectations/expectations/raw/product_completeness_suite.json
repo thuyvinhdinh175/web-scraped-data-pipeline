@@ -1,0 +1,112 @@
+{
+  "data_asset_type": "Dataset",
+  "expectation_suite_name": "raw_product_completeness_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 1,
+        "max_value": 1000000
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Check that the dataset is not empty and not unreasonably large"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_table_column_count_to_be_between",
+      "kwargs": {
+        "min_value": 10,
+        "max_value": 15
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Ensure expected number of columns is present"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "product_id"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Primary key should never be null"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "name"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Product name is a required field"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "price"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Price is a required field"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "brand"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Brand is a required field"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "in_stock"
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "In-stock status is a required field"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "categories",
+        "mostly": 0.95
+      },
+      "meta": {
+        "notes": {
+          "format": "markdown",
+          "content": "Categories should be present for at least 95% of products"
+        }
+      }
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "0.15.50",
+    "notes": {
+      "format": "markdown",
+      "content": "This expectation suite checks for completeness (non-null values) in required fields"
+    }
+  }
+}

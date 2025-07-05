@@ -1,0 +1,182 @@
+version: '3.8'
+
+services:
+  # Airflow components
+  airflow-webserver:
+    image: apache/airflow:2.7.1
+    command: webserver
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
+      - AIRFLOW_VAR_S3_BUCKET=web-scraped-data-pipeline
+      - AIRFLOW_VAR_USE_S3=True
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/project/src
+      - ./data:/opt/airflow/project/data
+      - ./great_expectations:/opt/airflow/project/great_expectations
+      - ./dbt_project:/opt/airflow/project/dbt_project
+      - ./streamlit_app:/opt/airflow/project/streamlit_app
+      - ./contracts:/opt/airflow/project/contracts
+    depends_on:
+      - postgres
+      - airflow-init
+    restart: always
+    networks:
+      - data-pipeline-network
+
+  airflow-scheduler:
+    image: apache/airflow:2.7.1
+    command: scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW_VAR_S3_BUCKET=web-scraped-data-pipeline
+      - AIRFLOW_VAR_USE_S3=True
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/project/src
+      - ./data:/opt/airflow/project/data
+      - ./great_expectations:/opt/airflow/project/great_expectations
+      - ./dbt_project:/opt/airflow/project/dbt_project
+      - ./streamlit_app:/opt/airflow/project/streamlit_app
+      - ./contracts:/opt/airflow/project/contracts
+    depends_on:
+      - postgres
+      - airflow-init
+    restart: always
+    networks:
+      - data-pipeline-network
+
+  airflow-init:
+    image: apache/airflow:2.7.1
+    entrypoint: /bin/bash
+    command: -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com"
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+    depends_on:
+      - postgres
+    networks:
+      - data-pipeline-network
+
+  # PostgreSQL for Airflow metadata
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - data-pipeline-network
+
+  # MinIO for S3-compatible storage
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - data-pipeline-network
+
+  # Create initial MinIO bucket
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (/usr/bin/mc config host add myminio http://minio:9000 minio minio123) do echo '...waiting...' && sleep 1; done;
+      /usr/bin/mc mb myminio/web-scraped-data-pipeline;
+      /usr/bin/mc policy set public myminio/web-scraped-data-pipeline;
+      exit 0;
+      "
+    networks:
+      - data-pipeline-network
+
+  # Spark for data transformation
+  spark-master:
+    image: bitnami/spark:3.3.1
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8181:8080"
+      - "7077:7077"
+    networks:
+      - data-pipeline-network
+
+  spark-worker:
+    image: bitnami/spark:3.3.1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    depends_on:
+      - spark-master
+    networks:
+      - data-pipeline-network
+
+  # dbt for data modeling
+  dbt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./dbt_project:/usr/app/dbt_project
+      - ./data:/usr/app/data
+    environment:
+      - DBT_PROFILES_DIR=/usr/app/dbt_project
+    networks:
+      - data-pipeline-network
+
+  # Streamlit for dashboard
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: streamlit run /usr/app/streamlit_app/dashboard.py
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./streamlit_app:/usr/app/streamlit_app
+      - ./data:/usr/app/data
+    environment:
+      - LOCAL_DATA_PATH=/usr/app/data/gold
+      - USE_S3=False
+    depends_on:
+      - minio
+    networks:
+      - data-pipeline-network
+
+networks:
+  data-pipeline-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  minio-data:
