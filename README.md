@@ -4,7 +4,7 @@
 
 This project demonstrates a complete data engineering pipeline that scrapes product data from e-commerce websites, validates it against schema contracts, transforms it using Apache Spark, models it with dbt, and visualizes insights through a Streamlit dashboard.
 
-The pipeline implements industry best practices for data quality, observability, and reproducibility. It's containerized with Docker and orchestrated using Apache Airflow, making it easy to deploy in various environments.
+The pipeline implements practices for data quality, observability, and reproducibility. It's containerized with Docker and orchestrated using Apache Airflow, making it easy to deploy in various environments.
 
 ## 🔧 Key Components
 
