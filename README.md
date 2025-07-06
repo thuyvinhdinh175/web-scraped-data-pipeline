@@ -54,12 +54,6 @@ graph TD
 | **Database** | PostgreSQL | 13 | Airflow metadata storage |
 | **Containerization** | Docker & Docker Compose | Latest | Environment consistency |
 
-### Modern Python Stack
-- **Pandas**: 2.0.3 (modern data manipulation)
-- **PyArrow**: 12.0.1 (efficient data interchange)
-- **Altair**: 5.0.1 (compatible with Great Expectations)
-- **All packages**: Latest compatible versions
-
 ## 📁 Project Structure
 
 ```
