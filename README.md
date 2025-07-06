@@ -10,6 +10,8 @@ A comprehensive data engineering pipeline that uses Whoogle Search to find and s
 
 ## ✨ Features
 
+The pipeline implements practices for data quality, observability, and reproducibility. It's containerized with Docker and orchestrated using Apache Airflow, making it easy to deploy in various environments.
+
 - 🔍 **Privacy-Focused Scraping**: Uses Whoogle Search for ad-free, tracking-free web search
 - 🛡️ **Data Quality**: Great Expectations for schema validation and quality monitoring
 - ⚡ **Modern Stack**: Pandas 2.x, Pydantic 2.x, Great Expectations 0.18.x
