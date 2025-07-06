@@ -13,7 +13,6 @@ The pipeline implements practices for data quality, observability, and reproduci
 
 - 🔍 **Privacy-Focused Scraping**: Uses Whoogle Search for ad-free, tracking-free web search
 - 🛡️ **Data Quality**: Great Expectations for schema validation and quality monitoring
-- ⚡ **Modern Stack**: Pandas 2.x, Pydantic 2.x, Great Expectations 0.18.x
 - 🐳 **Containerized**: Complete Docker environment with all services
 - 📊 **Real-time Dashboard**: Interactive Streamlit dashboard with product insights
 - 🔄 **Orchestrated**: Apache Airflow for scheduling and workflow management
