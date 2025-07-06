@@ -1,0 +1,48 @@
+# Requirements for web-scraped data pipeline
+# 
+# Choose the appropriate requirements file:
+# - requirements-core.txt: Essential packages for basic functionality (recommended for local development)
+# - requirements-full.txt: Complete packages including PySpark and Airflow (for full pipeline)
+# - requirements.txt: This file (core requirements)
+
+# Core requirements for basic functionality
+# Web scraping
+requests==2.32.4
+beautifulsoup4==4.13.4
+whoogle-search==0.9.3
+
+# AWS (pinned for compatibility)
+boto3==1.34.0
+botocore==1.34.0
+
+# Data processing
+pandas==2.3.0
+numpy==1.26.4
+pyarrow==14.0.2
+
+# Data quality
+great_expectations==0.18.22
+altair==4.2.2
+
+# Dashboard
+streamlit==1.46.1
+
+# Utilities
+python-dotenv==1.1.1
+click==8.1.8
+pydantic==2.11.7
+loguru==0.7.3
+
+# Additional dependencies
+scipy==1.13.1
+ipython==8.18.1
+notebook==7.4.4
+jinja2==3.1.6
+tornado==6.5.1
+pillow==11.3.0
+protobuf==5.29.5
+gitpython==3.1.44
+pendulum==3.1.0
+rich==14.0.0
+pyyaml==6.0.2
+networkx==3.2.1

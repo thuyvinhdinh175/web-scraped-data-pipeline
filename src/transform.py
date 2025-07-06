@@ -33,21 +33,24 @@ INPUT_PATH = os.environ.get("INPUT_PATH")
 OUTPUT_PATH = os.environ.get("OUTPUT_PATH")
 S3_BUCKET = os.environ.get("S3_BUCKET", "web-scraped-data-pipeline")
 USE_S3 = os.environ.get("USE_S3", "False").lower() == "true"
+SPARK_MASTER = os.environ.get("SPARK_MASTER", "spark://spark-master:7077")
 
 # Define schema for the raw product data
 product_schema = StructType([
     StructField("url", StringType(), False),
     StructField("scrape_date", StringType(), False),
     StructField("product_id", StringType(), False),
-    StructField("name", StringType(), False),
-    StructField("price", DoubleType(), False),
+    StructField("title", StringType(), True),
+    StructField("name", StringType(), True),
+    StructField("price", DoubleType(), True),
     StructField("description", StringType(), True),
     StructField("rating", DoubleType(), True),
     StructField("num_reviews", IntegerType(), True),
-    StructField("in_stock", BooleanType(), False),
-    StructField("brand", StringType(), False),
-    StructField("categories", ArrayType(StringType()), False),
-    StructField("image_urls", ArrayType(StringType()), True)
+    StructField("in_stock", BooleanType(), True),
+    StructField("brand", StringType(), True),
+    StructField("categories", ArrayType(StringType()), True),
+    StructField("image_urls", ArrayType(StringType()), True),
+    StructField("search_term", StringType(), True)
 ])
 
 def initialize_spark():
@@ -55,8 +58,11 @@ def initialize_spark():
     spark = (
         SparkSession.builder
         .appName("ProductDataTransformation")
+        .master(SPARK_MASTER)  # Explicitly set master URL
         .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
         .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
+        .config("spark.eventLog.enabled", "true")
+        .config("spark.eventLog.dir", "/tmp/spark-events")
         .getOrCreate()
     )
     
@@ -81,6 +87,11 @@ def transform_data(df):
     """Apply transformations to clean and prepare the data."""
     logger.info("Applying transformations")
     
+    # Handle the case where we might have either 'name' or 'title' populated
+    df = df.withColumn("name", 
+                      when(col("name").isNull(), col("title"))
+                      .otherwise(col("name")))
+    
     # Add timestamp and processing metadata
     df = df.withColumn("processed_at", current_timestamp())
     df = df.withColumn("data_source", lit("web_scraper"))
@@ -91,8 +102,38 @@ def transform_data(df):
     # Clean up product name (remove extra spaces, special chars)
     df = df.withColumn("name", regexp_replace(trim(col("name")), "\\s+", " "))
     
-    # Normalize brand names (lowercase, trim)
-    df = df.withColumn("brand", lower(trim(col("brand"))))
+    # Set default values for missing fields
+    df = df.withColumn("brand", 
+                      when(col("brand").isNull(), "Unknown")
+                      .otherwise(lower(trim(col("brand")))))
+    
+    # Handle missing price
+    df = df.withColumn("price", 
+                      when(col("price").isNull(), 0.0)
+                      .otherwise(col("price")))
+    
+    # Handle missing ratings
+    df = df.withColumn("rating", 
+                      when(col("rating").isNull(), 0.0)
+                      .otherwise(col("rating")))
+    
+    # Handle missing review counts
+    df = df.withColumn("num_reviews", 
+                      when(col("num_reviews").isNull(), 0)
+                      .otherwise(col("num_reviews")))
+    
+    # Handle missing in_stock
+    df = df.withColumn("in_stock", 
+                      when(col("in_stock").isNull(), False)
+                      .otherwise(col("in_stock")))
+    
+    # Handle missing categories
+    df = df.withColumn("categories", 
+                      when(col("categories").isNull(), 
+                           when(col("search_term").isNotNull(),
+                                split(col("search_term"), " ").getItem(0))
+                           .otherwise(array(lit("Uncategorized"))))
+                      .otherwise(col("categories")))
     
     # Explode categories into separate rows for better analytics
     exploded_df = df.withColumn("category", explode(col("categories")))
@@ -100,8 +141,7 @@ def transform_data(df):
     # Handle missing values
     cleaned_df = exploded_df.fillna({
         "description": "No description available",
-        "rating": 0.0,
-        "num_reviews": 0
+        "category": "Uncategorized"
     })
     
     # Deduplicate based on product_id and category

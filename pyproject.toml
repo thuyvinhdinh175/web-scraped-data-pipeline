@@ -1,0 +1,204 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "web-scraped-data-pipeline"
+version = "1.0.0"
+description = "A complete data engineering pipeline for web-scraped product data with validation, transformation, and visualization"
+authors = [
+    {name = "Data Engineer", email = "data.engineer@example.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # Web scraping
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.2",
+    "whoogle-search>=0.8.2",
+    
+    # AWS
+    "boto3>=1.28.3",
+    "s3fs>=2023.6.0",
+    
+    # Data processing
+    "pandas>=2.0.3",
+    "numpy>=1.25.1",
+    "pyarrow>=12.0.1",
+    
+    # PySpark (for local development)
+    "pyspark>=3.3.2",
+    
+    # Great Expectations
+    "great_expectations>=0.16.13",
+    
+    # Streamlit dashboard
+    "streamlit>=1.25.0",
+    "altair>=5.0.1",
+    
+    # Airflow (for local development)
+    "apache-airflow>=2.7.1",
+    "apache-airflow-providers-amazon>=8.1.0",
+    
+    # dbt (for local development)
+    "dbt-core>=1.5.1",
+    "dbt-spark>=1.5.1",
+    "dbt-postgres>=1.5.1",
+    
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "click>=8.0.0",
+    "pydantic>=2.0.0",
+    "loguru>=0.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "responses>=0.23.0",
+]
+
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "myst-parser>=1.0.0",
+]
+
+[project.scripts]
+pipeline = "src.run_pipeline:main"
+scraper = "src.scraper:main"
+validator = "src.validate:main"
+transformer = "src.transform:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/web-scraped-data-pipeline"
+Documentation = "https://github.com/yourusername/web-scraped-data-pipeline#readme"
+Repository = "https://github.com/yourusername/web-scraped-data-pipeline.git"
+Issues = "https://github.com/yourusername/web-scraped-data-pipeline/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yml", "*.yaml"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["src"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pyspark.*",
+    "pyspark.sql.*",
+    "great_expectations.*",
+    "apache_airflow.*",
+    "dbt.*",
+    "streamlit.*",
+    "altair.*",
+    "boto3.*",
+    "s3fs.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.loguru]
+# Loguru configuration for the project
+level = "INFO"
+format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>" 

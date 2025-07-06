@@ -1,0 +1,159 @@
+# Web-Scraped Data Pipeline - Cursor Rules
+
+## Project Overview
+This is a comprehensive data engineering pipeline that scrapes product data from e-commerce websites, validates it, transforms it using Apache Spark, models it with dbt, and visualizes insights through Streamlit.
+
+## Key Technologies
+- **Web Scraping**: Whoogle Search + Python (requests, BeautifulSoup)
+- **Orchestration**: Apache Airflow
+- **Storage**: MinIO (local) / AWS S3 (production)
+- **Processing**: Apache Spark
+- **Validation**: Great Expectations
+- **Modeling**: dbt
+- **Visualization**: Streamlit
+- **Containerization**: Docker & Docker Compose
+
+## Project Structure
+```
+web-scraped-data-pipeline/
+├── src/                    # Python source code
+│   ├── scraper.py         # Web scraping logic
+│   ├── validate.py        # Data validation
+│   ├── transform.py       # Spark ETL
+│   └── run_pipeline.py    # CLI entrypoint
+├── dags/                  # Airflow DAGs
+├── dbt_project/           # dbt models and config
+├── great_expectations/    # Data quality validation
+├── streamlit_app/         # Dashboard application
+├── contracts/             # JSON Schema contracts
+├── data/                  # Local data storage (raw/silver/gold)
+└── docker-compose.yml     # Service orchestration
+```
+
+## Development Patterns
+
+### Environment Management
+- Use `setup_env.sh` (macOS/Linux) or `setup_env.ps1` (Windows) for automated setup
+- Always use virtual environments (`venv/`)
+- Configure environment variables in `.env` file (copy from `env.example`)
+- Use `make` commands for common development tasks
+
+### Code Style
+- Follow PEP 8 with Black formatting (88 character line length)
+- Use type hints for all function parameters and return values
+- Use docstrings for all public functions and classes
+- Import sorting with isort
+- Linting with flake8
+
+### Data Pipeline Flow
+1. **Scraping**: Whoogle Search → Product URLs → Web Scraper → Raw JSON
+2. **Validation**: Great Expectations + JSON Schema → Quality checks
+3. **Transformation**: Spark ETL → Clean, deduplicate, normalize → Silver layer
+4. **Modeling**: dbt → Business logic → Gold layer
+5. **Visualization**: Streamlit → Interactive dashboard
+
+### Error Handling
+- Use structured logging with loguru
+- Implement proper exception handling with specific error types
+- Validate data at each pipeline stage
+- Use Great Expectations for data quality monitoring
+
+### Configuration Management
+- Use environment variables for configuration
+- Support multiple environments (development, staging, production)
+- Use JSON Schema for data contracts
+- Store sensitive information in environment variables, never in code
+
+## Docker Services
+- **whoogle**: Privacy-focused search engine (port 5000)
+- **airflow-webserver**: Airflow UI (port 8080)
+- **airflow-scheduler**: Airflow scheduler
+- **postgres**: Airflow metadata database
+- **minio**: S3-compatible storage (ports 9000, 9001)
+- **spark-master**: Spark master (port 8181)
+- **spark-worker**: Spark worker
+- **streamlit**: Dashboard (port 8501)
+
+## Common Commands
+```bash
+# Setup
+make setup                    # Complete environment setup
+make quickstart              # Setup + start services
+
+# Docker
+make docker-up               # Start all services
+make docker-down             # Stop all services
+make docker-logs             # View logs
+
+# Development
+make format                  # Format code
+make lint                    # Run linting
+make test                    # Run tests
+make type-check              # Type checking
+
+# Pipeline
+make run-pipeline            # Run complete pipeline
+make run-scraper             # Run scraper only
+make dashboard               # Start dashboard
+
+# Maintenance
+make clean                   # Clean temporary files
+make check-status            # Check service status
+```
+
+## Data Quality Standards
+- Use Great Expectations for data validation
+- Implement schema validation with JSON Schema
+- Check for data completeness, consistency, and uniqueness
+- Monitor data quality metrics over time
+- Fail fast on critical data quality issues
+
+## Testing Strategy
+- Unit tests for individual components
+- Integration tests for pipeline stages
+- Data quality tests with Great Expectations
+- End-to-end tests for complete pipeline
+- Mock external services in tests
+
+## Monitoring and Observability
+- Structured logging with loguru
+- Airflow task monitoring
+- Data quality metrics tracking
+- Performance monitoring for Spark jobs
+- Dashboard for pipeline health
+
+## Security Considerations
+- Never commit sensitive data or credentials
+- Use environment variables for secrets
+- Implement proper access controls for data storage
+- Validate and sanitize all input data
+- Use HTTPS for external API calls
+
+## Performance Optimization
+- Use Spark for large-scale data processing
+- Implement data partitioning strategies
+- Optimize database queries and Spark jobs
+- Use appropriate data formats (Parquet for analytics)
+- Monitor and tune resource usage
+
+## Deployment Patterns
+- Use Docker for consistent environments
+- Support multiple deployment targets (local, cloud)
+- Implement CI/CD pipelines
+- Use infrastructure as code principles
+- Monitor production deployments
+
+## Troubleshooting
+- Check Docker service logs first
+- Verify environment variable configuration
+- Ensure all required ports are available
+- Check data directory permissions
+- Monitor resource usage (memory, CPU)
+
+## Best Practices
+- Always validate data before processing
+- Implement idempotent operations
+- Use version control for all code and configuration
+- Document all data transformations
+- Maintain data lineage tracking
+- Implement proper error recovery mechanisms 

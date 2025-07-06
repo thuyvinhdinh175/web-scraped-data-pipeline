@@ -27,9 +27,11 @@ ENV/
 data/raw/*
 data/silver/*
 data/gold/*
+data/spark-events/*
 !data/raw/.gitkeep
 !data/silver/.gitkeep
 !data/gold/.gitkeep
+!data/spark-events/.gitkeep
 
 # dbt files
 dbt_project/target/

@@ -8,24 +8,19 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     git \
+    libffi-dev \
+    libssl-dev \
+    pkg-config \
+    libxml2-dev \
+    libxmlsec1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements file
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install additional dependencies for dbt and Spark
-RUN pip install --no-cache-dir \
-    dbt-core==1.5.1 \
-    dbt-spark==1.5.1 \
-    dbt-postgres==1.5.1 \
-    streamlit==1.25.0 \
-    altair==5.0.1 \
-    pyarrow==12.0.1 \
-    boto3==1.28.3 \
-    s3fs==2023.6.0
+# Install Python dependencies (single installation to avoid conflicts)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
